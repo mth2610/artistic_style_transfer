@@ -139,6 +139,13 @@ class _MyAppState extends State<MyApp> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: RaisedButton(
+        color: Colors.blue,
+        child: Text(
+          "Process",
+          style: TextStyle(
+            color: Colors.white
+          )
+        ),
         onPressed: ()async{
               setState(() {
                 _isSaving = true;
