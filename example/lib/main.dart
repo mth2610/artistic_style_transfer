@@ -147,13 +147,14 @@ class _MyAppState extends State<MyApp> {
           )
         ),
         onPressed: ()async{
+          try{
               setState(() {
                 _isSaving = true;
               });
               if(_image!=null){
                 Directory tempDir = await getTemporaryDirectory();
                 String tempPath = tempDir.path;
-                _proceessedImage = await ArtisticStyleTransfer.styleTransfer(styles: _selectedStyles, inputFilePath: _image.path, outputFilePath: tempPath, quality: 50);
+                _proceessedImage = await ArtisticStyleTransfer.styleTransfer(styles: _selectedStyles, inputFilePath: _image.path, outputFilePath: tempPath, quality: 50, styleFactor: 0.5);
                 setState(() {
                   _isSaving = false;
                 });
@@ -162,6 +163,13 @@ class _MyAppState extends State<MyApp> {
                   _isSaving = false;
                 });
               }
+          } catch (e){
+            print(e);
+            setState(() {
+                _isSaving = false;
+            });
+          }
+
         },
       )
     );

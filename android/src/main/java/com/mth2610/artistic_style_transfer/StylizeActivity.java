@@ -33,7 +33,7 @@ public class StylizeActivity {
         tensorFlowInferenceInterface = new TensorFlowInferenceInterface(context.getAssets(),MODEL_FILE);
     }
 
-    public String styleTransfer(Context context, final Integer[] styles, String inputFilePath, final String outputDir, final int quality) {
+    public String styleTransfer(Context context, final Integer[] styles, String inputFilePath, final String outputDir, final int quality, float styleFactor) {
 //        int desiredSize = 256;
         //tensorFlowInferenceInterface = new TensorFlowInferenceInterface(context.getAssets(),MODEL_FILE);
         inputBitmap = BitmapFactory.decodeFile(inputFilePath);
@@ -67,7 +67,7 @@ public class StylizeActivity {
         int numStyles = styles.length;
 
         for(int i=0; i < numStyles; i++){
-            styleVals[styles[i]] = (float) 1.0/numStyles;
+            styleVals[styles[i]] = (float) 1.0*styleFactor/numStyles;
         }
 
         intValues = new int[croppedBitmap.getWidth()*croppedBitmap.getHeight()];
