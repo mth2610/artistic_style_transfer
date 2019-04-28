@@ -33,10 +33,12 @@ public class ArtisticStyleTransferPlugin implements MethodCallHandler {
       final Integer[] styles = arrayListStyles.toArray(new Integer[arrayListStyles.size()]);
       final String inputFilePath = call.argument("inputFilePath");
       final String outputFilePath = call.argument("outputFilePath");
+      final int quality = call.argument("quality");
+
       new Thread(new Runnable() {
         public void run() {
           try {
-            final String output = stylizeActivity.styleTransfer(registrar.context(), styles, inputFilePath, outputFilePath);
+            final String output = stylizeActivity.styleTransfer(registrar.context(), styles, inputFilePath, outputFilePath, quality);
             result.success(output);
           } catch (Exception e) {
             result.error("styleTransfer", "error", e.toString());
