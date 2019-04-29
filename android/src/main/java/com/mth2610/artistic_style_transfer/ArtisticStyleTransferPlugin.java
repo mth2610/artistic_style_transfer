@@ -37,11 +37,12 @@ public class ArtisticStyleTransferPlugin implements MethodCallHandler {
 
       final double styleFactorDouble = call.argument("styleFactor");
       final float styleFactor = (float) styleFactorDouble;
+      final boolean convertToGrey = call.argument("convertToGrey");
 
       new Thread(new Runnable() {
         public void run() {
           try {
-            final String output = stylizeActivity.styleTransfer(registrar.context(), styles, inputFilePath, outputFilePath, quality, styleFactor);
+            final String output = stylizeActivity.styleTransfer(registrar.context(), styles, inputFilePath, outputFilePath, quality, styleFactor, convertToGrey);
             result.success(output);
           } catch (Exception e) {
             result.error("styleTransfer", "error", e.toString());

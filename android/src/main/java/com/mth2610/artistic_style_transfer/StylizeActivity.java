@@ -5,6 +5,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 
 import android.media.ExifInterface;
 
@@ -26,14 +30,13 @@ public class StylizeActivity {
     Bitmap inputBitmap;
     Bitmap croppedBitmap;
     Bitmap scacledBitmap;
-
-    Matrix cropToFrameTransform;
+    Bitmap grayScaleImage;
 
     public StylizeActivity(Context context) {
         tensorFlowInferenceInterface = new TensorFlowInferenceInterface(context.getAssets(),MODEL_FILE);
     }
 
-    public String styleTransfer(Context context, final Integer[] styles, String inputFilePath, final String outputDir, final int quality, float styleFactor) {
+    public String styleTransfer(Context context, final Integer[] styles, String inputFilePath, final String outputDir, final int quality, float styleFactor, boolean convertToGrey) {
 //        int desiredSize = 256;
         //tensorFlowInferenceInterface = new TensorFlowInferenceInterface(context.getAssets(),MODEL_FILE);
         inputBitmap = BitmapFactory.decodeFile(inputFilePath);
@@ -103,11 +106,24 @@ public class StylizeActivity {
 
         String outputFileName = String.valueOf(System.currentTimeMillis()) + ".jpeg";
         File outputFile = new File(outputDir +"/" + outputFileName);
+        if (outputFile.exists()) outputFile.delete();
 
         // scacle back
         croppedBitmap = Bitmap.createScaledBitmap(croppedBitmap, previewWidth, previewHeight, false);
 
-        if (outputFile.exists()) outputFile.delete();
+
+        String outputFilePath ="";
+
+        if(convertToGrey==true) {
+            Canvas canvas = new Canvas(croppedBitmap);
+            Paint paint = new Paint();
+            ColorMatrix cm = new ColorMatrix();
+            cm.setSaturation(0);
+            ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+            paint.setColorFilter(f);
+            canvas.drawBitmap(croppedBitmap, 0, 0, paint);
+        }
+
         try {
             FileOutputStream out = new FileOutputStream(outputFile);
             croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
@@ -118,9 +134,11 @@ public class StylizeActivity {
             Log.i("inputOri", String.valueOf(inputExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)));
             outputExif.setAttribute(ExifInterface.TAG_ORIENTATION, inputExif.getAttribute(ExifInterface.TAG_ORIENTATION));
             outputExif.saveAttributes();
+            outputFilePath = outputFile.getAbsolutePath();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return outputFile.getAbsolutePath();
+
+        return outputFilePath;
     }
 }

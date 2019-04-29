@@ -11,13 +11,12 @@ class ArtisticStyleTransfer {
     return version;
   }
 
-  static Future<String> styleTransfer({List<int> styles, String inputFilePath, String outputFilePath, int quality, double styleFactor}) async {
+  static Future<String> styleTransfer({List<int> styles, String inputFilePath, String outputFilePath, int quality, double styleFactor=1.0,  final bool convertToGrey}) async {
     assert(styles != null);
     assert(styles.length !=0 );
     assert(inputFilePath != null);
     assert(outputFilePath != null);
     assert(quality <= 100&& quality >0);
-    assert(styleFactor != null);
     final String outFilePath = await _channel.invokeMethod(
       'styleTransfer',
         {
@@ -26,6 +25,7 @@ class ArtisticStyleTransfer {
           'outputFilePath': outputFilePath,
           'quality': quality,
           'styleFactor': styleFactor,
+          'convertToGrey': convertToGrey,
         }
     );
     return outFilePath;
