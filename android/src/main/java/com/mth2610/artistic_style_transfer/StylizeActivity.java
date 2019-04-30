@@ -104,14 +104,14 @@ public class StylizeActivity {
         }
         croppedBitmap.setPixels(intValues, 0, croppedBitmap.getWidth(), 0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
 
-        String outputFileName = String.valueOf(System.currentTimeMillis()) + ".jpeg";
+//        String outputFileName = String.valueOf(System.currentTimeMillis()) + ".jpeg";
+        String outputFileName = "processedImage.jpeg";
         File outputFile = new File(outputDir +"/" + outputFileName);
         if (outputFile.exists()) outputFile.delete();
 
         // scacle back
         croppedBitmap = Bitmap.createScaledBitmap(croppedBitmap, previewWidth, previewHeight, false);
-
-
+        
         String outputFilePath ="";
 
         if(convertToGrey==true) {
