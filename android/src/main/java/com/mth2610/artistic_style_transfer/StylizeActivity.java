@@ -30,7 +30,6 @@ public class StylizeActivity {
     Bitmap inputBitmap;
     Bitmap croppedBitmap;
     Bitmap scacledBitmap;
-    Bitmap grayScaleImage;
 
     public StylizeActivity(Context context) {
         tensorFlowInferenceInterface = new TensorFlowInferenceInterface(context.getAssets(),MODEL_FILE);
@@ -40,11 +39,13 @@ public class StylizeActivity {
 //        int desiredSize = 256;
         //tensorFlowInferenceInterface = new TensorFlowInferenceInterface(context.getAssets(),MODEL_FILE);
         inputBitmap = BitmapFactory.decodeFile(inputFilePath);
-
         int inputWidth = inputBitmap.getWidth();
         int inputHeight = inputBitmap.getHeight();
 
         scacledBitmap = Bitmap.createScaledBitmap(inputBitmap, inputWidth*quality/100, inputHeight*quality/100, false);
+
+        // free up inputBitmap
+        inputBitmap.recycle();
 
         int desiredWidth = 128*(int)Math.floor(scacledBitmap.getWidth()/128);
         int desiredHeight = 128*(int)Math.floor(scacledBitmap.getHeight()/128);
@@ -56,6 +57,8 @@ public class StylizeActivity {
 
         // scale to square
         croppedBitmap = Bitmap.createScaledBitmap(scacledBitmap, desiredSize, desiredSize, false);
+
+
 
         float[] styleVals = {
                 0.0f, 0.0f, 0.0f, 0.0f,
@@ -134,8 +137,13 @@ public class StylizeActivity {
             outputExif.setAttribute(ExifInterface.TAG_ORIENTATION, inputExif.getAttribute(ExifInterface.TAG_ORIENTATION));
             outputExif.saveAttributes();
             outputFilePath = outputFile.getAbsolutePath();
+
+            // free up memory
+            croppedBitmap.recycle();
         } catch (Exception e) {
             e.printStackTrace();
+            // free up memory
+            croppedBitmap.recycle();
         }
 
         return outputFilePath;
