@@ -58,8 +58,6 @@ public class StylizeActivity {
         // scale to square
         croppedBitmap = Bitmap.createScaledBitmap(scacledBitmap, desiredSize, desiredSize, false);
 
-
-
         float[] styleVals = {
                 0.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 0.0f,
@@ -147,5 +145,12 @@ public class StylizeActivity {
         }
 
         return outputFilePath;
+    }
+
+    void freeUpMemory(){
+        tensorFlowInferenceInterface.close();
+        inputBitmap.recycle();
+        croppedBitmap.recycle();
+        scacledBitmap.recycle();
     }
 }
