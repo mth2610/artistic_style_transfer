@@ -27,9 +27,7 @@ public class StylizeActivity {
     private int[] intValues;
     private float[] floatValues;
     TensorFlowInferenceInterface tensorFlowInferenceInterface;
-    Bitmap inputBitmap;
-    Bitmap croppedBitmap;
-    Bitmap scacledBitmap;
+
 
     public StylizeActivity(Context context) {
         tensorFlowInferenceInterface = new TensorFlowInferenceInterface(context.getAssets(),MODEL_FILE);
@@ -38,6 +36,10 @@ public class StylizeActivity {
     public String styleTransfer(Context context, final Integer[] styles, String inputFilePath, final String outputDir, final int quality, float styleFactor, boolean convertToGrey) {
 //        int desiredSize = 256;
         //tensorFlowInferenceInterface = new TensorFlowInferenceInterface(context.getAssets(),MODEL_FILE);
+        Bitmap inputBitmap;
+        Bitmap croppedBitmap;
+        Bitmap scacledBitmap;
+
         inputBitmap = BitmapFactory.decodeFile(inputFilePath);
         int inputWidth = inputBitmap.getWidth();
         int inputHeight = inputBitmap.getHeight();
@@ -147,10 +149,10 @@ public class StylizeActivity {
         return outputFilePath;
     }
 
-    void freeUpMemory(){
-        tensorFlowInferenceInterface.close();
-        inputBitmap.recycle();
-        croppedBitmap.recycle();
-        scacledBitmap.recycle();
-    }
+//    void freeUpMemory(){
+//        tensorFlowInferenceInterface.close();
+//        inputBitmap.recycle();
+//        croppedBitmap.recycle();
+//        scacledBitmap.recycle();
+//    }
 }
