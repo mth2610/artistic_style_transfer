@@ -154,7 +154,7 @@ class _MyAppState extends State<MyApp> {
               if(_image!=null){
                 Directory tempDir = await getTemporaryDirectory();
                 String tempPath = tempDir.path;
-                _proceessedImage = await ArtisticStyleTransfer.styleTransfer(styles: _selectedStyles, inputFilePath: _image.path, outputFilePath: tempPath, quality: 50, styleFactor: 1.0, convertToGrey: true);
+                _proceessedImage = await ArtisticStyleTransfer.styleTransfer(styles: _selectedStyles, inputFilePath: _image.path, outputFilePath: tempPath, quality: 100, styleFactor: 1.0, convertToGrey: true);
                 setState(() {
                   _isSaving = false;
                 });

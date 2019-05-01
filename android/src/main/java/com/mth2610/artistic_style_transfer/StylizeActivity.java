@@ -27,27 +27,29 @@ public class StylizeActivity {
     private int[] intValues;
     private float[] floatValues;
     TensorFlowInferenceInterface tensorFlowInferenceInterface;
-
+    Bitmap inputBitmap;
+    Bitmap croppedBitmap;
+    Bitmap scacledBitmap;
 
     public StylizeActivity(Context context) {
         tensorFlowInferenceInterface = new TensorFlowInferenceInterface(context.getAssets(),MODEL_FILE);
     }
 
+
     public String styleTransfer(Context context, final Integer[] styles, String inputFilePath, final String outputDir, final int quality, float styleFactor, boolean convertToGrey) {
 //        int desiredSize = 256;
         //tensorFlowInferenceInterface = new TensorFlowInferenceInterface(context.getAssets(),MODEL_FILE);
-        Bitmap inputBitmap;
-        Bitmap croppedBitmap;
-        Bitmap scacledBitmap;
-
+        String outputFilePath = null;
         inputBitmap = BitmapFactory.decodeFile(inputFilePath);
         int inputWidth = inputBitmap.getWidth();
         int inputHeight = inputBitmap.getHeight();
 
-        scacledBitmap = Bitmap.createScaledBitmap(inputBitmap, inputWidth*quality/100, inputHeight*quality/100, false);
+        scacledBitmap =  Bitmap.createScaledBitmap(inputBitmap, inputWidth*quality/100, inputHeight*quality/100, false);
+
+        Log.i("Availabel memory", String.valueOf(getAvailabelMemory()));
 
         // free up inputBitmap
-        inputBitmap.recycle();
+       inputBitmap = null;
 
         int desiredWidth = 128*(int)Math.floor(scacledBitmap.getWidth()/128);
         int desiredHeight = 128*(int)Math.floor(scacledBitmap.getHeight()/128);
@@ -59,6 +61,9 @@ public class StylizeActivity {
 
         // scale to square
         croppedBitmap = Bitmap.createScaledBitmap(scacledBitmap, desiredSize, desiredSize, false);
+
+        // free up memory
+        scacledBitmap = null;
 
         float[] styleVals = {
                 0.0f, 0.0f, 0.0f, 0.0f,
@@ -76,83 +81,109 @@ public class StylizeActivity {
             styleVals[styles[i]] = (float) 1.0*styleFactor/numStyles;
         }
 
-        intValues = new int[croppedBitmap.getWidth()*croppedBitmap.getHeight()];
-        floatValues = new float[croppedBitmap.getWidth()*croppedBitmap.getHeight()*3];
-        croppedBitmap.getPixels(intValues, 0, croppedBitmap.getWidth(), 0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
+        try{
+            if(getAvailabelMemory()<croppedBitmap.getWidth()*croppedBitmap.getHeight()*4){
+                Log.i("memory", String.valueOf(getAvailabelMemory()));
+                throw new Exception("Out of memory");
+            }
 
-        for (int i = 0; i < intValues.length; ++i) {
-            final int val = intValues[i];
-            floatValues[i * 3] = ((val >> 16) & 0xFF) / 255f;
-            floatValues[i * 3 + 1] = ((val >> 8) & 0xFF) / 255f;
-            floatValues[i * 3 + 2] = (val & 0xFF) / 255f;
-        }
 
-        Log.i("floatValues", floatValues.toString());
-//        Log.i("inferenceInterface", inferenceInterface.toString());
-        tensorFlowInferenceInterface.feed(INPUT_NODE, floatValues, 1, croppedBitmap.getWidth(), croppedBitmap.getHeight(), 3);
-        tensorFlowInferenceInterface.feed(STYLE_NODE, styleVals, NUM_STYLES);
-        // Execute the output node's dependency sub-graph.
-        tensorFlowInferenceInterface.run(new String[] {OUTPUT_NODE}, false);
-        // Copy the data from TensorFlow back into our array
-        Log.i("outputTensor",tensorFlowInferenceInterface.getStatString());
+            intValues = new int[croppedBitmap.getWidth()*croppedBitmap.getHeight()];
+            floatValues = new float[croppedBitmap.getWidth()*croppedBitmap.getHeight()*3];
 
-        tensorFlowInferenceInterface.fetch(OUTPUT_NODE, floatValues);
+            croppedBitmap.getPixels(intValues, 0, croppedBitmap.getWidth(), 0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
 
-        for (int i = 0; i < intValues.length; ++i) {
+            for (int i = 0; i < intValues.length; ++i) {
+                final int val = intValues[i];
+                floatValues[i * 3] = ((val >> 16) & 0xFF) / 255f;
+                floatValues[i * 3 + 1] = ((val >> 8) & 0xFF) / 255f;
+                floatValues[i * 3 + 2] = (val & 0xFF) / 255f;
+            }
+
+            Log.i("floatValues", floatValues.toString());
+
+
+            tensorFlowInferenceInterface.feed(INPUT_NODE, floatValues, 1, croppedBitmap.getWidth(), croppedBitmap.getHeight(), 3);
+            tensorFlowInferenceInterface.feed(STYLE_NODE, styleVals, NUM_STYLES);
+            // Execute the output node's dependency sub-graph.
+            tensorFlowInferenceInterface.run(new String[] {OUTPUT_NODE}, false);
+            // Copy the data from TensorFlow back into our array
+            Log.i("outputTensor",tensorFlowInferenceInterface.getStatString());
+
+            tensorFlowInferenceInterface.fetch(OUTPUT_NODE, floatValues);
+
+            for (int i = 0; i < intValues.length; ++i) {
                 intValues[i] =
                         0xFF000000
                                 | (((int) (floatValues[i * 3 ] * 255f)) << 16)
                                 | (((int) (floatValues[i * 3  + 1] * 255f)) << 8)
                                 | ((int) (floatValues[i * 3 + 2] * 255f));
-        }
-        croppedBitmap.setPixels(intValues, 0, croppedBitmap.getWidth(), 0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
+            }
 
-        String outputFileName = String.valueOf(System.currentTimeMillis()) + ".jpeg";
-        File outputFile = new File(outputDir +"/" + outputFileName);
-        if (outputFile.exists()) outputFile.delete();
 
-        // scacle back
-        croppedBitmap = Bitmap.createScaledBitmap(croppedBitmap, previewWidth, previewHeight, false);
+            croppedBitmap.setPixels(intValues, 0, croppedBitmap.getWidth(), 0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
 
-        String outputFilePath ="";
+            String outputFileName = String.valueOf(System.currentTimeMillis()) + ".jpeg";
+            File outputFile = new File(outputDir +"/" + outputFileName);
+            if (outputFile.exists()) outputFile.delete();
 
-        if(convertToGrey==true) {
-            Canvas canvas = new Canvas(croppedBitmap);
-            Paint paint = new Paint();
-            ColorMatrix cm = new ColorMatrix();
-            cm.setSaturation(0);
-            ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
-            paint.setColorFilter(f);
-            canvas.drawBitmap(croppedBitmap, 0, 0, paint);
-        }
+            // scacle back
+            croppedBitmap = Bitmap.createScaledBitmap(croppedBitmap, previewWidth, previewHeight, false);
 
-        try {
-            FileOutputStream out = new FileOutputStream(outputFile);
-            croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.flush();
-            out.close();
-            ExifInterface inputExif = new ExifInterface(inputFilePath);
-            ExifInterface outputExif = new ExifInterface(outputFile.getAbsolutePath());
-            Log.i("inputOri", String.valueOf(inputExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)));
-            outputExif.setAttribute(ExifInterface.TAG_ORIENTATION, inputExif.getAttribute(ExifInterface.TAG_ORIENTATION));
-            outputExif.saveAttributes();
-            outputFilePath = outputFile.getAbsolutePath();
 
-            // free up memory
-            croppedBitmap.recycle();
+
+            if(convertToGrey==true) {
+                Canvas canvas = new Canvas(croppedBitmap);
+                Paint paint = new Paint();
+                ColorMatrix cm = new ColorMatrix();
+                cm.setSaturation(0);
+                ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+                paint.setColorFilter(f);
+                canvas.drawBitmap(croppedBitmap, 0, 0, paint);
+            }
+
+            try {
+                FileOutputStream out = new FileOutputStream(outputFile);
+                croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                out.flush();
+                out.close();
+                ExifInterface inputExif = new ExifInterface(inputFilePath);
+                ExifInterface outputExif = new ExifInterface(outputFile.getAbsolutePath());
+                Log.i("inputOri", String.valueOf(inputExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)));
+                outputExif.setAttribute(ExifInterface.TAG_ORIENTATION, inputExif.getAttribute(ExifInterface.TAG_ORIENTATION));
+                outputExif.saveAttributes();
+                outputFilePath = outputFile.getAbsolutePath();
+
+                // free up memory
+                croppedBitmap = null;
+                intValues = null;
+                floatValues = null;
+            } catch (Exception e) {
+                e.printStackTrace();
+                // free up memory
+                freeUpMemory();
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
-            // free up memory
-            croppedBitmap.recycle();
+            freeUpMemory();
         }
-
         return outputFilePath;
     }
 
-//    void freeUpMemory(){
-//        tensorFlowInferenceInterface.close();
-//        inputBitmap.recycle();
-//        croppedBitmap.recycle();
-//        scacledBitmap.recycle();
-//    }
+    long getAvailabelMemory(){
+        final Runtime runtime = Runtime.getRuntime();
+        final long usedMemInByte=(runtime.totalMemory() - runtime.freeMemory());
+        final long maxHeapSizeInByte=runtime.maxMemory();
+        final long availHeapSizeInByte = maxHeapSizeInByte - usedMemInByte;
+        return availHeapSizeInByte;
+    }
+
+    void freeUpMemory(){
+        inputBitmap = null;
+        scacledBitmap = null;
+        croppedBitmap = null;
+        intValues = null;
+        floatValues = null;
+    }
 }

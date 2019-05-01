@@ -43,9 +43,13 @@ public class ArtisticStyleTransferPlugin implements MethodCallHandler {
         public void run() {
           try {
             final String output = stylizeActivity.styleTransfer(registrar.context(), styles, inputFilePath, outputFilePath, quality, styleFactor, convertToGrey);
-            result.success(output);
+            if(output!=null){
+              result.success(output);
+            } else {
+              result.error("out of memory", "out of memory", "out of memory");
+            }
           } catch (Exception e) {
-//            stylizeActivity.freeUpMemory();
+            stylizeActivity.freeUpMemory();
             result.error("styleTransfer", "error", e.toString());
           }
         }}).start();
