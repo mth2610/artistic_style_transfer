@@ -82,7 +82,7 @@ public class StylizeActivity {
         }
 
         try{
-            if(getAvailabelMemory()<croppedBitmap.getWidth()*croppedBitmap.getHeight()*4){
+            if(getAvailabelMemory()<croppedBitmap.getWidth()*croppedBitmap.getHeight()*4.5){
                 Log.i("memory", String.valueOf(getAvailabelMemory()));
                 throw new Exception("Out of memory");
             }
