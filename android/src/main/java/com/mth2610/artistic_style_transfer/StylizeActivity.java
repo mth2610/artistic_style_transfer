@@ -130,8 +130,6 @@ public class StylizeActivity {
             // scacle back
             croppedBitmap = Bitmap.createScaledBitmap(croppedBitmap, previewWidth, previewHeight, false);
 
-
-
             if(convertToGrey==true) {
                 Canvas canvas = new Canvas(croppedBitmap);
                 Paint paint = new Paint();
