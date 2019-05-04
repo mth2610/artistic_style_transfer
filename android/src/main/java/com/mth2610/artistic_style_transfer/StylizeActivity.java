@@ -88,9 +88,10 @@ public class StylizeActivity {
             styleVals[styles[i]] = (float) 1.0*styleFactor/numStyles;
         }
 
+        Log.i("available memory 6", String.valueOf(getAvailabelMemory()));
+        Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*17));
+
         try{
-            Log.i("available memory", String.valueOf(getAvailabelMemory()));
-            Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*17));
             if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*17){
 
                 floatValues = FloatBuffer.allocate(1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3);
