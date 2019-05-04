@@ -60,16 +60,26 @@ public class StylizeActivity {
         Log.i("memory", String.valueOf(getAvailabelMemory()));
         int inputWidth = inputBitmap.getWidth();
         int inputHeight = inputBitmap.getHeight();
-        croppedBitmap =  Bitmap.createScaledBitmap(inputBitmap, inputWidth*quality/100, inputHeight*quality/100, false);
 
-        int desiredWidth = 128*(int)Math.floor(croppedBitmap.getWidth()/128);
-        int desiredHeight = 128*(int)Math.floor(croppedBitmap.getHeight()/128);
+        Log.i("Availabel memory 4", String.valueOf(getAvailabelMemory()));
 
-        int previewWidth = croppedBitmap.getWidth();
-        int previewHeight = croppedBitmap.getHeight();
+        int previewWidth = inputWidth*quality/100;
+        int previewHeight = inputHeight*quality/100;
+
+        int desiredWidth = 128*(int)Math.floor(previewWidth/128);
+        int desiredHeight = 128*(int)Math.floor(previewHeight/128);
+
         int desiredSize = Math.min(desiredWidth, desiredHeight);
         // scale to square
-        croppedBitmap = Bitmap.createScaledBitmap(croppedBitmap, desiredSize, desiredSize, false);
+        croppedBitmap = Bitmap.createScaledBitmap(inputBitmap, desiredSize, desiredSize, false);
+
+//        try{
+//            fileInputStream.close();
+//            System.gc();
+//        } catch (Exception e){
+//            e.printStackTrace();
+//        }
+
         Log.i("Availabel memory 5", String.valueOf(getAvailabelMemory()));
 
         float[] styleVals = {
@@ -89,7 +99,7 @@ public class StylizeActivity {
         }
 
         Log.i("available memory 6", String.valueOf(getAvailabelMemory()));
-        Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*17));
+        Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*19));
 
         try{
             if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*17){
@@ -188,12 +198,16 @@ public class StylizeActivity {
     }
 
     void freeUpMemory(){
-        inputBitmap.recycle();
-        inputBitmap = null;
-        croppedBitmap.recycle();
-        croppedBitmap = null;
-        intValues = null;
-        floatValues = null;
-
+        try{
+            croppedBitmap.recycle();
+            croppedBitmap = null;
+            inputBitmap.recycle();
+            inputBitmap = null;
+            intValues = null;
+            floatValues = null;
+            fileInputStream.close();
+        } catch (Exception e){
+            e.printStackTrace();
+        };
     }
 }
