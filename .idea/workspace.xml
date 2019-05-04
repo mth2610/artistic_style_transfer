@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0f929491-b14e-4855-9957-d41e65db3d27" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/android/src/main/java/com/mth2610/artistic_style_transfer/ArtisticStyleTransferPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/src/main/java/com/mth2610/artistic_style_transfer/ArtisticStyleTransferPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/src/main/java/com/mth2610/artistic_style_transfer/StylizeActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/src/main/java/com/mth2610/artistic_style_transfer/StylizeActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/artistic_style_transfer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/artistic_style_transfer.dart" afterDir="false" />
-    </list>
+    <list default="true" id="0f929491-b14e-4855-9957-d41e65db3d27" name="Default Changelist" comment="" />
     <ignored path="$PROJECT_DIR$/.dart_tool/" />
     <ignored path="$PROJECT_DIR$/.idea/" />
     <ignored path="$PROJECT_DIR$/.pub/" />
@@ -74,7 +69,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -87,6 +81,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -121,7 +116,8 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1152" height="633" extended-state="6" />
+    <frame x="0" y="23" width="1152" height="633" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23063064" />
       <window_info id="Captures" order="1" side_tool="true" />
