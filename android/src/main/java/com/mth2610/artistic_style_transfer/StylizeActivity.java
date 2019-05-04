@@ -44,7 +44,7 @@ public class StylizeActivity {
     Bitmap inputBitmap;
     Bitmap croppedBitmap;
     Float MEAN = 0.0f;
-    Float STD = 100f;
+    Float STD = 255f;
 //    Bitmap scacledBitmap;
 
     public StylizeActivity(Context context) {
@@ -90,7 +90,7 @@ public class StylizeActivity {
                 Log.i("memory", String.valueOf(getAvailabelMemory()));
                 throw new Exception("Out of memory");
             }
-            
+
             floatValues = FloatBuffer.allocate(1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3);
             intValues = new int[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()];
             croppedBitmap.getPixels(intValues, 0, croppedBitmap.getWidth(), 0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
