@@ -89,25 +89,16 @@ public class StylizeActivity {
         }
 
         try{
+            Log.i("available memory", String.valueOf(getAvailabelMemory()));
             Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*17));
             if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*17){
-                Log.i("memory", String.valueOf(getAvailabelMemory()));
+
                 floatValues = FloatBuffer.allocate(1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3);
                 intValues = new int[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()];
-                Log.i("memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*17));
             } else {
                 freeUpMemory();
                 throw new Exception("Out of memory");
             }
-
-//            try{
-//                floatValues = FloatBuffer.allocate(1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3);
-//                intValues = new int[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()];
-//            } catch (OutOfMemoryError e){
-//                freeUpMemory();
-//                throw new Error(e);
-//            }
-
             croppedBitmap.getPixels(intValues, 0, croppedBitmap.getWidth(), 0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
             for (int i = 0; i < intValues.length; ++i) {
                 int pixelValue = intValues[i];
