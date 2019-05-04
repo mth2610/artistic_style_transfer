@@ -1,10 +1,10 @@
 package com.mth2610.artistic_style_transfer;
 
 import android.content.Context;
-
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+//import android.graphics.Matrix;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.ColorMatrix;
@@ -16,18 +16,10 @@ import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.BufferedInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.io.FileInputStream;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.MappedByteBuffer;
 
 import android.util.Log;
 
@@ -41,6 +33,7 @@ public class StylizeActivity {
     private FloatBuffer floatValues;
 
     TensorFlowInferenceInterface tensorFlowInferenceInterface;
+    FileInputStream fileInputStream;
     Bitmap inputBitmap;
     Bitmap croppedBitmap;
     Float MEAN = 0.0f;
@@ -52,8 +45,19 @@ public class StylizeActivity {
     }
 
     public String styleTransfer(Context context, final Integer[] styles, String inputFilePath, final String outputDir, final int quality, float styleFactor, boolean convertToGrey) {
+        Log.i("memory", String.valueOf(getAvailabelMemory()));
         String outputFilePath = null;
-        inputBitmap = BitmapFactory.decodeFile(inputFilePath);
+
+        try{
+            File file = new File(inputFilePath);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            inputBitmap = BitmapFactory.decodeStream(fileInputStream);
+        } catch (Exception e){
+            inputBitmap = BitmapFactory.decodeFile(inputFilePath);
+            e.printStackTrace();
+        }
+
+        Log.i("memory", String.valueOf(getAvailabelMemory()));
         int inputWidth = inputBitmap.getWidth();
         int inputHeight = inputBitmap.getHeight();
         croppedBitmap =  Bitmap.createScaledBitmap(inputBitmap, inputWidth*quality/100, inputHeight*quality/100, false);
@@ -85,14 +89,25 @@ public class StylizeActivity {
         }
 
         try{
-
-            if(getAvailabelMemory()<croppedBitmap.getWidth()*croppedBitmap.getHeight()*5){
+            Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*17));
+            if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*17){
                 Log.i("memory", String.valueOf(getAvailabelMemory()));
+                floatValues = FloatBuffer.allocate(1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3);
+                intValues = new int[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()];
+                Log.i("memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*17));
+            } else {
+                freeUpMemory();
                 throw new Exception("Out of memory");
             }
 
-            floatValues = FloatBuffer.allocate(1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3);
-            intValues = new int[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()];
+//            try{
+//                floatValues = FloatBuffer.allocate(1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3);
+//                intValues = new int[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()];
+//            } catch (OutOfMemoryError e){
+//                freeUpMemory();
+//                throw new Error(e);
+//            }
+
             croppedBitmap.getPixels(intValues, 0, croppedBitmap.getWidth(), 0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
             for (int i = 0; i < intValues.length; ++i) {
                 int pixelValue = intValues[i];
@@ -187,5 +202,6 @@ public class StylizeActivity {
         croppedBitmap = null;
         intValues = null;
         floatValues = null;
+
     }
 }

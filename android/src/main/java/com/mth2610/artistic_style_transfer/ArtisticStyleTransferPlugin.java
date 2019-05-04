@@ -49,7 +49,7 @@ public class ArtisticStyleTransferPlugin implements MethodCallHandler {
               result.error("out of memory", "out of memory", "out of memory");
             }
           } catch (Exception e) {
-            stylizeActivity.freeUpMemory();
+//            stylizeActivity.freeUpMemory();
             result.error("styleTransfer", "error", e.toString());
           }
         }}).start();
