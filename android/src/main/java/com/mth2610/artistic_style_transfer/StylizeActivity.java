@@ -126,7 +126,7 @@ public class StylizeActivity {
             tensorFlowInferenceInterface.run(new String[] {OUTPUT_NODE}, false);
             Log.i("available memory 8", String.valueOf(getAvailabelMemory()));
             // Copy the data from TensorFlow back into our array
-            floatValues.clear();
+
             float[] outputFloats = new float[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3];
 
             Log.i("available memory 9", String.valueOf(getAvailabelMemory()));
