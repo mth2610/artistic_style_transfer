@@ -99,10 +99,10 @@ public class StylizeActivity {
         }
 
         Log.i("available memory 6", String.valueOf(getAvailabelMemory()));
-        Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*19));
+        Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*20));
 
         try{
-            if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*17){
+            if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*20){
 
                 floatValues = FloatBuffer.allocate(1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3);
                 intValues = new int[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()];
@@ -118,15 +118,19 @@ public class StylizeActivity {
                 floatValues.put((pixelValue & 0xFF) / STD);
             }
 
+            Log.i("available memory 7", String.valueOf(getAvailabelMemory()));
             tensorFlowInferenceInterface.feed(INPUT_NODE, floatValues.array(), 1, croppedBitmap.getWidth(), croppedBitmap.getHeight(), 3);
             tensorFlowInferenceInterface.feed(STYLE_NODE, styleVals, NUM_STYLES);
             // Execute the output node's dependency sub-graph.
 
             tensorFlowInferenceInterface.run(new String[] {OUTPUT_NODE}, false);
-
+            Log.i("available memory 8", String.valueOf(getAvailabelMemory()));
             // Copy the data from TensorFlow back into our array
             floatValues.clear();
             float[] outputFloats = new float[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3];
+
+            Log.i("available memory 9", String.valueOf(getAvailabelMemory()));
+
             tensorFlowInferenceInterface.fetch(OUTPUT_NODE, outputFloats);
 
             for (int i = 0; i < croppedBitmap.getWidth()*croppedBitmap.getHeight(); ++i) {
