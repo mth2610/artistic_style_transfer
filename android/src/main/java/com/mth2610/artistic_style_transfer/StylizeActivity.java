@@ -95,7 +95,7 @@ public class StylizeActivity {
         Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*30));
 
         try{
-            if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*30){
+            if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*20){
 
                 floatValues = new float[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3];
                 intValues = new int[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()];
@@ -113,11 +113,17 @@ public class StylizeActivity {
 
             Log.i("available memory 7", String.valueOf(getAvailabelMemory()));
 
-            tensorFlowInferenceInterface.feed(INPUT_NODE, floatValues, 1, croppedBitmap.getWidth(), croppedBitmap.getHeight(), 3);
-            tensorFlowInferenceInterface.feed(STYLE_NODE, styleVals, NUM_STYLES);
-            // Execute the output node's dependency sub-graph.
+            try{
+                tensorFlowInferenceInterface.feed(INPUT_NODE, floatValues, 1, croppedBitmap.getWidth(), croppedBitmap.getHeight(), 3);
+                tensorFlowInferenceInterface.feed(STYLE_NODE, styleVals, NUM_STYLES);
+                // Execute the output node's dependency sub-graph.
+                tensorFlowInferenceInterface.run(new String[] {OUTPUT_NODE}, false);
+            }catch (Error e){
+                throw new Error(e.getMessage());
+            }catch (Exception e){
+                throw new Exception(e.getMessage());
+            }
 
-            tensorFlowInferenceInterface.run(new String[] {OUTPUT_NODE}, false);
             Log.i("available memory 8", String.valueOf(getAvailabelMemory()));
             // Copy the data from TensorFlow back into our array
 

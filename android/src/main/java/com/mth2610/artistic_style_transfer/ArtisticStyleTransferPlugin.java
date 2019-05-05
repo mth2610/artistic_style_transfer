@@ -51,6 +51,8 @@ public class ArtisticStyleTransferPlugin implements MethodCallHandler {
           } catch (Exception e) {
 //            stylizeActivity.freeUpMemory();
             result.error("styleTransfer", "error", e.toString());
+          } catch (Error e){
+            result.error("styleTransfer", "error", e.toString());
           }
         }}).start();
     }
