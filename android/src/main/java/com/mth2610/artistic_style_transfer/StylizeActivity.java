@@ -30,7 +30,7 @@ public class StylizeActivity {
     private static final String OUTPUT_NODE = "transformer/expand/conv3/conv/Sigmoid";
     private static final int NUM_STYLES = 26;
     private int[] intValues;
-    private FloatBuffer floatValues;
+    private float[] floatValues;
 
     TensorFlowInferenceInterface tensorFlowInferenceInterface;
     FileInputStream fileInputStream;
@@ -73,13 +73,6 @@ public class StylizeActivity {
         // scale to square
         croppedBitmap = Bitmap.createScaledBitmap(inputBitmap, desiredSize, desiredSize, false);
 
-//        try{
-//            fileInputStream.close();
-//            System.gc();
-//        } catch (Exception e){
-//            e.printStackTrace();
-//        }
-
         Log.i("Availabel memory 5", String.valueOf(getAvailabelMemory()));
 
         float[] styleVals = {
@@ -104,7 +97,7 @@ public class StylizeActivity {
         try{
             if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*20){
 
-                floatValues = FloatBuffer.allocate(1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3);
+                floatValues = new float[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3];
                 intValues = new int[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()];
             } else {
                 freeUpMemory();
@@ -113,13 +106,14 @@ public class StylizeActivity {
             croppedBitmap.getPixels(intValues, 0, croppedBitmap.getWidth(), 0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
             for (int i = 0; i < intValues.length; ++i) {
                 int pixelValue = intValues[i];
-                floatValues.put((((pixelValue >> 16) & 0xFF) )/ STD);
-                floatValues.put(((pixelValue >> 8) & 0xFF) / STD);
-                floatValues.put((pixelValue & 0xFF) / STD);
+                floatValues[i*3] = ((((pixelValue >> 16) & 0xFF) )/ STD);
+                floatValues[i*3+1] = (((pixelValue >> 8) & 0xFF) / STD);
+                floatValues[i*3+2]=((pixelValue & 0xFF) / STD);
             }
 
             Log.i("available memory 7", String.valueOf(getAvailabelMemory()));
-            tensorFlowInferenceInterface.feed(INPUT_NODE, floatValues.array(), 1, croppedBitmap.getWidth(), croppedBitmap.getHeight(), 3);
+
+            tensorFlowInferenceInterface.feed(INPUT_NODE, floatValues, 1, croppedBitmap.getWidth(), croppedBitmap.getHeight(), 3);
             tensorFlowInferenceInterface.feed(STYLE_NODE, styleVals, NUM_STYLES);
             // Execute the output node's dependency sub-graph.
 
@@ -127,21 +121,19 @@ public class StylizeActivity {
             Log.i("available memory 8", String.valueOf(getAvailabelMemory()));
             // Copy the data from TensorFlow back into our array
 
-            float[] outputFloats = new float[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3];
-
             Log.i("available memory 9", String.valueOf(getAvailabelMemory()));
 
-            tensorFlowInferenceInterface.fetch(OUTPUT_NODE, outputFloats);
+            tensorFlowInferenceInterface.fetch(OUTPUT_NODE, floatValues);
 
             for (int i = 0; i < croppedBitmap.getWidth()*croppedBitmap.getHeight(); ++i) {
                 intValues[i] =
                         0xFF000000
-                                | (((int) (outputFloats[i * 3] * STD)) << 16)
-                                | (((int) (outputFloats[i * 3  + 1] * STD)) << 8)
-                                | ((int) (outputFloats[i * 3 + 2] * STD));
+                                | (((int) (floatValues[i * 3] * STD)) << 16)
+                                | (((int) (floatValues[i * 3  + 1] * STD)) << 8)
+                                | ((int) (floatValues[i * 3 + 2] * STD));
             }
 
-            floatValues.clear();
+            floatValues = null;
             croppedBitmap.setPixels(intValues, 0, croppedBitmap.getWidth(), 0, 0, croppedBitmap.getWidth(), croppedBitmap.getHeight());
 
             if(convertToGrey==true) {
@@ -178,7 +170,7 @@ public class StylizeActivity {
                 croppedBitmap = null;
                 inputBitmap.recycle();
                 inputBitmap = null;
-                floatValues.clear();
+                floatValues = null;
                 intValues = null;
                 System.gc();
             } catch (Exception e) {
