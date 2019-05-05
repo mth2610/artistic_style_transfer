@@ -92,10 +92,10 @@ public class StylizeActivity {
         }
 
         Log.i("available memory 6", String.valueOf(getAvailabelMemory()));
-        Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*20));
+        Log.i("needed memory", String.valueOf(croppedBitmap.getWidth()*croppedBitmap.getHeight()*30));
 
         try{
-            if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*20){
+            if(getAvailabelMemory()>croppedBitmap.getWidth()*croppedBitmap.getHeight()*30){
 
                 floatValues = new float[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()*3];
                 intValues = new int[1*croppedBitmap.getWidth()*croppedBitmap.getHeight()];
